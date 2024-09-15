@@ -45,7 +45,7 @@ const carousel = [
   },
 ];
 
-const inputClass = "p-1 rounded";
+const inputClass = "p-1 rounded mb-2 last:mb-0";
 
 const IconDisplay = ({
   icon,
@@ -64,8 +64,15 @@ const IconDisplay = ({
 
 export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState<
-    "unsubmitted" | "submitting" | "success" | "emailfield" | "senderror"
+    "unsubmitted" | "submitting" | "success" | "error"
   >("unsubmitted");
+  const [errorMessages, setErrorMessages] = useState<{
+    name?: string;
+    email?: string;
+    subject?: string;
+    content?: string;
+    server?: string;
+  }>({});
   const firstRef = useRef(null);
   const secondRef = useRef(null);
   const thirdRef = useRef(null);
@@ -92,8 +99,19 @@ export default function HomePage() {
   const submit = async () => {
     if (isSubmitting !== "unsubmitted") return;
     setIsSubmitting("submitting");
-    // const result = await contact({ name, email, subject, content: message });
-    // setIsSubmitting(result);
+    const { success, error } = await contact({
+      name,
+      email,
+      subject,
+      content: message,
+    });
+    if (error) {
+      setErrorMessages(error);
+      setIsSubmitting("unsubmitted");
+    } else {
+      setIsSubmitting("success");
+      setErrorMessages({});
+    }
   };
   return (
     <article className="">
@@ -101,7 +119,6 @@ export default function HomePage() {
         <Image
           src="/images/business.jpg"
           className="-z-10 w-full object-cover"
-          // placeholder="blur"
           fill={true}
           alt="bg"
         />
@@ -200,7 +217,10 @@ export default function HomePage() {
             </div>
             <div className="flex w-full flex-col gap-2">
               <div className="flex flex-wrap gap-2">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
+                  {errorMessages.name ? (
+                    <p className="text-xs text-red-500">{errorMessages.name}</p>
+                  ) : null}
                   <input
                     type="text"
                     value={name}
@@ -208,6 +228,11 @@ export default function HomePage() {
                     placeholder="Name"
                     className={inputClass}
                   />
+                  {errorMessages.email ? (
+                    <p className="text-xs text-red-500">
+                      {errorMessages.email}
+                    </p>
+                  ) : null}
                   <input
                     type="email"
                     value={email}
@@ -215,6 +240,11 @@ export default function HomePage() {
                     placeholder="Email"
                     className={inputClass}
                   />
+                  {errorMessages.subject ? (
+                    <p className="text-xs text-red-500">
+                      {errorMessages.subject}
+                    </p>
+                  ) : null}
                   <input
                     type="text"
                     value={subject}
@@ -223,18 +253,27 @@ export default function HomePage() {
                     className={inputClass}
                   />
                 </div>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Message"
-                  className={`${inputClass} flex-grow resize-none`}
-                />
+                <div className="flex flex-grow flex-col">
+                  {errorMessages.content ? (
+                    <p className="text-xs text-red-500">
+                      {errorMessages.content}
+                    </p>
+                  ) : null}
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Message"
+                    className={`${inputClass} flex-grow resize-none`}
+                  />
+                </div>
               </div>
               <div className="flex justify-between">
-                <p className="text-xs text-red-500">All fields are required</p>
+                <p className="text-xs text-red-500">
+                  {errorMessages.server ? errorMessages.server : ""}
+                </p>
                 <button
                   onClick={submit}
-                  className="h-9 w-24 self-end rounded-md bg-lightgold font-semibold"
+                  className={`h-9 w-24 self-end rounded-md bg-lightgold font-semibold${isSubmitting === "success" ? "pointer-events-none cursor-default opacity-60" : ""}`}
                 >
                   {isSubmitting === "submitting" ? (
                     <div className="flex items-center justify-center gap-1">
@@ -243,8 +282,11 @@ export default function HomePage() {
                       <div className="h-3 w-3 animate-bounce rounded-full bg-black [animation-delay:-0.15s]"></div>
                       <div className="h-3 w-3 animate-bounce rounded-full bg-black"></div>
                     </div>
-                  ) : (
+                  ) : isSubmitting === "error" ||
+                    isSubmitting === "unsubmitted" ? (
                     "Submit"
+                  ) : (
+                    "Submitted"
                   )}
                 </button>
               </div>

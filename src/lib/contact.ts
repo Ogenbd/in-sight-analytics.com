@@ -2,40 +2,40 @@
 import "server-only";
 
 import { Resend } from "resend";
-import { z } from "zod";
 
 import EmailTemplate from "@/components/EmailTemplate";
 import { env } from "@/env";
+import { submissionSchema } from "@/lib/schema";
+
+import type { SubmissionSchema } from "@/lib/schema";
 
 const resend = new Resend(env.RESENDKEY);
 
-const submissionSchema = z.object({
-  name: z.string(),
-  email: z.string().email({ message: "Invalid Email address" }),
-  subject: z.string(),
-  content: z.string(),
-});
-
-type Submission = z.infer<typeof submissionSchema>;
-
-export default async function contact(submission: Submission) {
+export default async function contact(submission: SubmissionSchema) {
   const { error: parsingError, data: parsingData } =
     submissionSchema.safeParse(submission);
   if (parsingError) {
-    console.log(parsingError);
-    return "emailfield";
+    const formatted = parsingError.format();
+    console.log(parsingError.format());
+    return {
+      success: false,
+      error: {
+        name: formatted.name?._errors[0],
+        email: formatted.email?._errors[0],
+        subject: formatted.subject?._errors[0],
+        content: formatted.content?._errors[0],
+      },
+    };
   }
-  console.log(parsingData);
-  // return "success";
   const { data, error } = await resend.emails.send({
-    from: "noreply@in-sight-analytics.com",
+    from: "noreply@notifications.in-sight-analytics.com",
     to: ["grisha@in-sight-analytics.com"],
-    subject: "In-sight-analytics form submission",
+    // to: ["grisha@in-sight-analytics.com"],
+    subject: "In-sight-analytics contact form submission",
     react: EmailTemplate(parsingData),
   });
   if (error) {
-    console.log("error sending email: ", error);
-    return "senderror";
+    return { success: false, error: { server: "Server error" } };
   }
-  return "success";
+  return { success: true };
 }
