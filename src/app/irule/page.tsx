@@ -15,7 +15,7 @@ const IRule = () => {
         />
       </div>
       <div className="flex w-page max-w-full flex-col gap-6 px-2 sm:px-0">
-        <div className="bg-prezi font w-full rounded-md p-2 text-lg font-semibold text-white">
+        <div className="font w-full rounded-md bg-prezi p-2 text-lg font-semibold text-white">
           The IRule CostPerform add-on allows for the management of model
           allocations on the “Meta model level”. IRule extends the capabilities
           of conditional driver to include not only the destination but also the
@@ -25,7 +25,7 @@ const IRule = () => {
           <div className={gridItemClass}>
             <p>Streamline model design</p>
           </div>
-          <div className="bg-prezi row-span-2 flex w-full items-center justify-center rounded-md p-2 text-center text-xl font-bold text-white">
+          <div className="row-span-2 flex w-full items-center justify-center rounded-md bg-prezi p-2 text-center text-xl font-bold text-white">
             <p>IRule benefits</p>
           </div>
           <div className={gridItemClass}>

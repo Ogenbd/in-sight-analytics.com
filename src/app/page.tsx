@@ -99,7 +99,7 @@ export default function HomePage() {
   const submit = async () => {
     if (isSubmitting !== "unsubmitted") return;
     setIsSubmitting("submitting");
-    const { success, error } = await contact({
+    const { error } = await contact({
       name,
       email,
       subject,

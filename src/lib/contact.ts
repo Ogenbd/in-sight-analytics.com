@@ -27,10 +27,9 @@ export default async function contact(submission: SubmissionSchema) {
       },
     };
   }
-  const { data, error } = await resend.emails.send({
-    from: "noreply@notifications.in-sight-analytics.com",
-    to: ["grisha@in-sight-analytics.com"],
-    // to: ["grisha@in-sight-analytics.com"],
+  const { error } = await resend.emails.send({
+    from: "In-sight-analytics <fromsubmittion@notifications.in-sight-analytics.com>",
+    to: ["grishak@gmail.com"],
     subject: "In-sight-analytics contact form submission",
     react: EmailTemplate(parsingData),
   });
